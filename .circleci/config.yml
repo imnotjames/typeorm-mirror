@@ -42,7 +42,7 @@ jobs:
       - attach_workspace:
           at: target
       - run: |
-          NPM_EXISTS=$(npm view typeorm versions --json | jq --arg VERSION "$(cat $TARGET_DIRECTORY/version)" 'contains([$VERSION])')
+          NPM_EXISTS=$(npm view @imnotjames/typeorm versions --json | jq --arg VERSION "$(cat $TARGET_DIRECTORY/VERSION)" 'contains([$VERSION])')
           if [ "$NPM_EXISTS" = "true" ]; then
             echo "Version already exists in NPM, halting..."
             circleci-agent step halt
