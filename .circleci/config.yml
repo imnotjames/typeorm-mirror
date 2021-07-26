@@ -100,6 +100,27 @@ jobs:
 workflows:
   version: 2
   npm-mirror:
+    jobs:
+      - clone-typeorm
+      - generate-new-version:
+          requires:
+            - clone-typeorm
+      - prevent-redundant-build:
+          requires:
+            - generate-new-version
+      - build:
+          requires:
+            - prevent-redundant-build
+            - generate-new-version
+      - package:
+          requires:
+            - build
+      - publish:
+          requires:
+            - package
+
+
+  npm-mirror-cron:
     triggers:
       - schedule:
           cron: "0,15,30,45 * * * *"
