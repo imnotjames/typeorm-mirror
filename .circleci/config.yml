@@ -3,6 +3,24 @@ version: 2.1
 orbs:
   node: circleci/node@4.3.0
 
+commands:
+  prevent-redundant-build:
+    parameters:
+      target-directory:
+        type: "string"
+        default: "$TARGET_DIRECTORY"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: target
+      - run: |
+          NPM_EXISTS=$(npm view @imnotjames/typeorm versions --json | jq --arg VERSION "$(cat << parameters.target-directory >>/VERSION)" 'contains([$VERSION])')
+          if [ "$NPM_EXISTS" = "true" ]; then
+            echo "Version already exists in NPM, halting..."
+            circleci-agent step halt
+          fi
+
+
 jobs:
   clone-typeorm:
     docker:
@@ -32,22 +50,6 @@ jobs:
           paths:
             - typeorm/
 
-  prevent-redundant-build:
-    docker:
-      - image: circleci/node:12
-    environment:
-      TARGET_DIRECTORY: "target/typeorm"
-    steps:
-      - checkout
-      - attach_workspace:
-          at: target
-      - run: |
-          NPM_EXISTS=$(npm view @imnotjames/typeorm versions --json | jq --arg VERSION "$(cat $TARGET_DIRECTORY/VERSION)" 'contains([$VERSION])')
-          if [ "$NPM_EXISTS" = "true" ]; then
-            echo "Version already exists in NPM, halting..."
-            circleci-agent step halt
-          fi
-
   build:
     docker:
       - image: circleci/node:12
@@ -57,6 +59,8 @@ jobs:
       - checkout
       - attach_workspace:
           at: target
+      - prevent-redundant-build:
+          target-directory: "$TARGET_DIRECTORY"
       - node/install-packages:
           app-dir: "target/typeorm/"
       - run: cd "$TARGET_DIRECTORY" && npm run compile
@@ -74,6 +78,8 @@ jobs:
       - checkout
       - attach_workspace:
           at: target
+      - prevent-redundant-build:
+          target-directory: "$TARGET_DIRECTORY"
       - run: ./patch-manifest.sh "$TARGET_DIRECTORY"
       - run: cd "$TARGET_DIRECTORY" && npm run package
       - run: mkdir -p target/artifacts && cd target/artifacts/ && npm pack "../../$TARGET_DIRECTORY/build/package/"
@@ -94,6 +100,8 @@ jobs:
       - checkout
       - attach_workspace:
           at: target
+      - prevent-redundant-build:
+          target-directory: "$TARGET_DIRECTORY"
       - run: echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > ~/.npmrc
       - run: npm publish target/artifacts/*.tgz
 
@@ -105,12 +113,8 @@ workflows:
       - generate-new-version:
           requires:
             - clone-typeorm
-      - prevent-redundant-build:
-          requires:
-            - generate-new-version
       - build:
           requires:
-            - prevent-redundant-build
             - generate-new-version
       - package:
           requires:
@@ -133,12 +137,8 @@ workflows:
       - generate-new-version:
           requires:
             - clone-typeorm
-      - prevent-redundant-build:
-          requires:
-            - generate-new-version
       - build:
           requires:
-            - prevent-redundant-build
             - generate-new-version
       - package:
           requires:
