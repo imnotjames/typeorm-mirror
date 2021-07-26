@@ -1,0 +1,102 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@4.3.0
+
+jobs:
+  clone-typeorm:
+    docker:
+      - image: circleci/node:12
+    environment:
+      TARGET_DIRECTORY: "target/typeorm/"
+    steps:
+      - checkout
+      - run: git clone --depth 1 https://github.com/typeorm/typeorm.git "$TARGET_DIRECTORY"
+      - persist_to_workspace:
+          root: target
+          paths:
+            - typeorm/
+
+  generate-new-version:
+    docker:
+      - image: circleci/node:12
+    environment:
+      TARGET_DIRECTORY: "target/typeorm/"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: target
+      - run: ./new-version.sh "$TARGET_DIRECTORY"
+      - persist_to_workspace:
+          root: target
+          paths:
+            - typeorm/
+
+# TODO: Test that the version hasn't already been published..
+# npm view typeorm versions --json | jq --arg VERSION "$(cat typeorm/build/version)" 'contains([$VERSION])'
+
+  build:
+    docker:
+      - image: circleci/node:12
+    environment:
+      TARGET_DIRECTORY: "target/typeorm/"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: target
+      - node/install-packages:
+          app-dir: "target/typeorm/"
+      - run: cd "$TARGET_DIRECTORY" && npm run compile
+      - persist_to_workspace:
+          root: target
+          paths:
+            - typeorm/
+
+  package:
+    docker:
+      - image: circleci/node:12
+    environment:
+      TARGET_DIRECTORY: "target/typeorm/"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: target
+      - run: ./patch-manifest.sh "$TARGET_DIRECTORY"
+      - run: cd "$TARGET_DIRECTORY" && npm run package
+      - run: mkdir -p target/artifacts && cd target/artifacts/ && npm pack "../../$TARGET_DIRECTORY/build/package/"
+      - store_artifacts:
+          path: target/artifacts/
+      - persist_to_workspace:
+          root: target
+          paths:
+            - artifacts/
+            - typeorm/
+
+  publish:
+    docker:
+      - image: circleci/node:12
+    environment:
+      TARGET_DIRECTORY: "target/typeorm/"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: target
+      - run: npm publish target/artifacts/*.tgz
+
+workflows:
+  version: 2
+  npm-mirror:
+    jobs:
+      - clone-typeorm
+      - generate-new-version:
+          requires:
+            - clone-typeorm
+      - build:
+          requires:
+            - generate-new-version
+      - package:
+          requires:
+            - build
+      - publish:
+          requires:
+            - package
