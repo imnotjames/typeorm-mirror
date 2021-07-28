@@ -73,6 +73,8 @@ jobs:
           at: target
       - prevent-redundant-build:
           target-directory: "target/"
+      - node/install-packages:
+          app-dir: "target/typeorm/"
       - run: ./patch-manifest.sh "target/"
       - run: cd "target/typeorm" && npm run package
       - run: mkdir -p target/artifacts && cd target/artifacts/ && npm pack "../../target/typeorm/build/package/"
