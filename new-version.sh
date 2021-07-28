@@ -1,8 +1,8 @@
 #!/bin/bash
 
-MANIFEST_FILE="$1/package.json"
+GIT_DIRECTORY="$1/typeorm/.git/"
+MANIFEST_FILE="$1/typeorm/package.json"
 VERSION_FILE="$1/VERSION"
-GIT_DIRECTORY="$1/.git/"
 
 REPO_NAME="@imnotjames/typeorm"
 REPO_URL="https://github.com/imnotjames/typeorm.git"
