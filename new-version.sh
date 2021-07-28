@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 GIT_DIRECTORY="$1/typeorm/.git/"
 MANIFEST_FILE="$1/typeorm/package.json"
