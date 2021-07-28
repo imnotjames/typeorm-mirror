@@ -96,7 +96,7 @@ jobs:
       - prevent-redundant-build:
           target-directory: "target/"
       - run: echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > ~/.npmrc
-      - run: npm publish target/artifacts/*.tgz
+      - run: npm publish target/artifacts/*.tgz --access public --tag dev
 
 workflows:
   version: 2
