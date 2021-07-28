@@ -15,16 +15,17 @@ CURRENT_VERSION=`echo "$PACKAGE_MANIFEST" | jq -r '.version | split("-")[0] // "
 NEXT_PATCH_VERSION=`echo "$PACKAGE_MANIFEST" | jq -r '.version | split("-")[0] | split(".") | [ .[0] // 0, .[1] // 0, (.[2] | tonumber? // 0) + 1 ] | join(".")'`
 NEXT_MINOR_VERSION=`echo "$PACKAGE_MANIFEST" | jq -r '.version | split("-")[0] | split(".") | [ .[0] // 0, (.[1] | tonumber? // 0) + 1, 0 ] | join(".")'`
 NEXT_MAJOR_VERSION=`echo "$PACKAGE_MANIFEST" | jq -r '.version | split("-")[0] | split(".") | [ (.[0] | tonumber? // 0) + 1, 0, 0 ] | join(".")'`
+
 GIT_HASH=`git --git-dir "$GIT_DIRECTORY" rev-parse --short HEAD`
 
-RC_SUFFIX="dev+${GIT_HASH}"
+VERSION_SUFFIX="dev+${GIT_HASH}"
 
-IS_RC_ALREADY=`echo "$PACKAGE_MANIFEST" | jq '.version | test("^.*-rc.[a-f0-9]+$")'`
+IS_SNAPSHOT_ALREADY=`echo "$PACKAGE_MANIFEST" | jq '.version | test("^.*-[.+a-z0-9]+$")'`
 
-if [[ "$IS_RC_ALREADY" == "true" ]]; then
-    NEXT_VERSION="$CURRENT_VERSION-$RC_SUFFIX"
+if [[ "$IS_SNAPSHOT_ALREADY" == "true" ]]; then
+    NEXT_VERSION="$CURRENT_VERSION-$VERSION_SUFFIX"
 else
-    NEXT_VERSION="$NEXT_PATCH_VERSION-$RC_SUFFIX"
+    NEXT_VERSION="$NEXT_PATCH_VERSION-$VERSION_SUFFIX"
 fi
 
 echo $NEXT_VERSION > "$VERSION_FILE"
