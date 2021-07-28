@@ -17,7 +17,7 @@ NEXT_MINOR_VERSION=`echo "$PACKAGE_MANIFEST" | jq -r '.version | split("-")[0] |
 NEXT_MAJOR_VERSION=`echo "$PACKAGE_MANIFEST" | jq -r '.version | split("-")[0] | split(".") | [ (.[0] | tonumber? // 0) + 1, 0, 0 ] | join(".")'`
 GIT_HASH=`git --git-dir "$GIT_DIRECTORY" rev-parse --short HEAD`
 
-RC_SUFFIX="rc.${GIT_HASH}"
+RC_SUFFIX="dev+${GIT_HASH}"
 
 IS_RC_ALREADY=`echo "$PACKAGE_MANIFEST" | jq '.version | test("^.*-rc.[a-f0-9]+$")'`
 
