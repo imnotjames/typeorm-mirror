@@ -127,9 +127,9 @@ workflows:
       - package:
           requires:
             - build
-      #- publish:
-          #requires:
-            #- package
+      - publish:
+          requires:
+            - package
 
 
   npm-mirror-cron:
@@ -151,9 +151,9 @@ workflows:
       - package:
           requires:
             - build
-      #- publish:
-          #requires:
-            #- package
+      - publish:
+          requires:
+            - package
 
 
   imnotjames-npm-mirror:
