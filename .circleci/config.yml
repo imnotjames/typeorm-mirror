@@ -170,7 +170,7 @@ workflows:
             - patch-manifest
       - package:
           requires:
-            - patch-manifest
+            - build
       - publish:
           requires:
             - package
@@ -197,7 +197,7 @@ workflows:
             - patch-manifest
       - package:
           requires:
-            - patch-manifest
+            - build
       - publish:
           requires:
             - package
