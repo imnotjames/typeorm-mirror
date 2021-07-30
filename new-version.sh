@@ -15,7 +15,7 @@ NEXT_MAJOR_VERSION=`echo "$PACKAGE_MANIFEST" | jq -r '.version | split("-")[0] |
 
 GIT_HASH=`git --git-dir "$GIT_DIRECTORY" rev-parse --short HEAD`
 
-VERSION_SUFFIX="dev+${GIT_HASH}"
+VERSION_SUFFIX="dev.${GIT_HASH}"
 
 IS_SNAPSHOT_ALREADY=`echo "$PACKAGE_MANIFEST" | jq '.version | test("^.*-[.+a-z0-9]+$")'`
 
