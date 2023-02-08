@@ -25,7 +25,7 @@ commands:
 jobs:
   clone-typeorm:
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:16
     steps:
       - checkout
       - run: git clone --depth 1 https://github.com/typeorm/typeorm.git "target/typeorm/"
@@ -36,7 +36,7 @@ jobs:
 
   generate-new-version:
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:16
     steps:
       - checkout
       - attach_workspace:
@@ -49,7 +49,7 @@ jobs:
 
   build:
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:16
     steps:
       - checkout
       - attach_workspace:
@@ -66,7 +66,7 @@ jobs:
 
   patch-manifest:
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:16
     steps:
       - checkout
       - attach_workspace:
@@ -81,7 +81,7 @@ jobs:
 
   package:
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:16
     steps:
       - checkout
       - attach_workspace:
@@ -103,7 +103,7 @@ jobs:
 
   publish:
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:16
     steps:
       - checkout
       - attach_workspace:
